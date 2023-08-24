@@ -4,4 +4,4 @@ Pillow==8.4.0
 pytesseract~=0.3.10
 requests==2.31.0
 opencv-python~=4.8.0.74
-numpy~=1.25.1
+numpy~=1.25.2

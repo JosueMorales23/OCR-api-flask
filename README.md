@@ -42,7 +42,7 @@ pip install -r requirements.txt
 ```
 Descargar e instalar [Tesseract OCR](https://github.com/UB-Mannheim/tesseract/wiki#tesseract-installer-for-windows)
 
-Agregue a al path de su sistema la ruta de instalación de Tesseract OCR
+Agregue al path de su sistema la ruta de instalación de Tesseract OCR
 ```
 C:\Program Files\Tesseract-OCR\
 ```
@@ -63,6 +63,9 @@ C:\Program Files\Tesseract-OCR\
 
 - El servidor Flask asume que se está ejecutando en `http://localhost:5000/process_image`. Actualice la
   variable `server_url` en el script `client.py` si su servidor se ejecuta en una dirección diferente.
+
+- Despues de instalar Tesseract OCR y agregarlo al path de su sistema, reinicie su computadora para que los cambios
+  tengan efecto.
 
 ## Licencia
 
