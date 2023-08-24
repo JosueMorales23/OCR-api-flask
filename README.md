@@ -7,26 +7,31 @@ y un script de cliente para probarlo.
 ## Instalación
 
 1. Clona este repositorio en tu máquina local:
-````
+```
 git clone https://github.com/JosueMorales23/OCR-api-flask.git
+```
+2. Acceda al directorio del repositorio:
+```
 cd OCR-api-flask
 ````
 
-2. Instale las dependencias requeridas usando pip:
+3. Instale las dependencias requeridas usando pip:
 ```
 pip install -r requirements.txt
  ```
 
-3. Ejecute el servidor Flask:
+4. Ejecute el servidor Flask:
 ```
 python app.py
  ```
 
-4. Abra otra ventana de terminal y ejecute el script del cliente:
+5. Abra otra ventana de terminal y ejecute el script del cliente:
 ```
 python client.py
 ```
+
 Asegúrese de tener instalado Python 3.x.
+- Versión actual de Python: 3.11.4
 
 ## Requisitos
 
@@ -34,6 +39,12 @@ Puede encontrar los paquetes de Python necesarios en el archivo `requirements.tx
 comando:
 ```
 pip install -r requirements.txt
+```
+Descargar e instalar [Tesseract OCR](https://github.com/UB-Mannheim/tesseract/wiki#tesseract-installer-for-windows)
+
+Agregue a al path de su sistema la ruta de instalación de Tesseract OCR
+```
+C:\Program Files\Tesseract-OCR\
 ```
 
 ## Uso
