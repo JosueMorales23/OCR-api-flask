@@ -7,6 +7,7 @@ import pytesseract
 import cv2
 import numpy as np
 import re
+import pattern_utils
 
 app = Flask(__name__)
 
@@ -71,53 +72,60 @@ def process_image():
 
     decrypted_image = preprocess_image(decrypted_image_data)
     extracted_text = pytesseract.image_to_string(decrypted_image, config='--psm 6')
+    cleaned_text = re.sub(r'[^\w\s]', '', extracted_text)
+    cleaned_text = re.sub(r'\n\n', '\n', cleaned_text)
+    splitted_text = cleaned_text.split("\n")
 
-    id_pattern = r'(IDNo\.|No.)\s*(\w+)'
-    name_pattern = r'(IDNo\.|No.)\s*(\w+)(\n\n~|\n~|\n|\n*)\s*([A-Z ]+)\n'
-    name_pattern_1 = r'(IDNo\.|No.)\s*(\w+)(\n\n~|\n~|\n|\n*)\s*([A-Z ]+)\n'
-    name_pattern_2 = r'(IDNo\.|No.)\s*(\w+)\s*([a-z ]+\s*,\n\n((\w+)\s*(\w+)\s*(\w+)))'
-    issue_date_pattern = r'Issue\s*Date\s*(\d{2}\s*\d{2}\s*\d{2})'
+    matches = pattern_utils.search_patterns(cleaned_text)
 
-    member_id_pattern = r'Member\s*ID:\s*(\w+)'
-    name_pattern2 = r'Name:\s*(.+)'
-    effective_date_pattern = r'Effective\s*Date:\s*(\d{1}/\d{1}/\d{4})'
+    id_number = matches[1].group(2) if matches[0] else None
+    name = matches[2].group(4) if matches[2] else None
+    issue_date = matches[3].group(2) if matches[3] else None
 
-    id_match = re.search(id_pattern, extracted_text, re.IGNORECASE)
-    name_match = re.search(name_pattern, extracted_text, re.IGNORECASE)
-    name_match1 = re.search(name_pattern_1, extracted_text, re.IGNORECASE)
-    name_match2 = re.search(name_pattern_2, extracted_text, re.IGNORECASE)
-    issue_date_match = re.search(issue_date_pattern, extracted_text, re.IGNORECASE)
+    member_id = matches[5].group(1) if matches[4] else None
+    name2 = matches[6].group(1) if matches[6] else None
+    effective_date = matches[7].group(1) if matches[7] else None
 
-    id_number = id_match.group(2) if id_match else None
-    name = name_match.group(4) if name_match else None
-    name1 = name_match1.group(4) if name_match1 else None
-    name4 = name_match2.group(4) if name_match2 else None
-    issue_date = issue_date_match.group(1) if issue_date_match else None
+    # specifics patterns
+    specific_member_id = matches[8].group(0) if matches[8] else None
 
-    member_id_match = re.search(member_id_pattern, extracted_text, re.IGNORECASE)
-    name_match2 = re.search(name_pattern2, extracted_text, re.IGNORECASE)
-    effective_date_match = re.search(effective_date_pattern, extracted_text, re.IGNORECASE)
-
-    member_id = member_id_match.group(1) if member_id_match else None
-    name2 = name_match2.group(1) if name_match2 else None
-    effective_date = effective_date_match.group(1) if effective_date_match else None
+    document_type3 = matches[9].group(0) if matches[9] else None
+    document_type4 = matches[10].group(0) if matches[9] else None
+    document_type5 = matches[11].group(0) if matches[9] else None
+    name3 = matches[12].group(3) if matches[12] else None
+    document_type6 = matches[13].group(0) if matches[13] else None
+    document_type7 = matches[14].group(0) if matches[14] else None
+    document_type8 = matches[15].group(0) if matches[15] else None
 
     response_data = {
-        "message": "Image decrypted and text extracted",
-        "text": extracted_text
+        "cleaned_text": cleaned_text,
+        "text": extracted_text,
+        "splitted_text": splitted_text,
     }
 
-    if id_number or name or name1 or name2 or issue_date:
+    if id_number and name and issue_date:
         response_data["id_number"] = id_number
         response_data["name"] = name
-        response_data["name"] = name1
-        response_data["name"] = name4
         response_data["issue_date"] = issue_date
 
-    if member_id or name2 or effective_date:
+    if member_id and name2 and effective_date:
         response_data["member_id"] = member_id
         response_data["name"] = name2
         response_data["effective_date"] = effective_date
+
+    if specific_member_id:
+        response_data["member_id"] = "true"
+    else:
+        response_data["member_id"] = "false"
+
+    if document_type3 and document_type4 and document_type5:
+        response_data["document_type"] = (document_type3 + " " + document_type4 + " " + document_type5)
+        response_data["id_number"] = id_number
+        response_data["name"] = name3
+        response_data["issue_date"] = issue_date
+
+    if document_type6 and document_type7 and document_type8:
+        response_data["document_type"] = document_type6 + " " + document_type7 + " " + document_type8
 
     response_data = {key: value for key, value in response_data.items() if value is not None}
 
