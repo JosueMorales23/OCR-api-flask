@@ -16,38 +16,65 @@ response = requests.post(server_url, json=json_data)
 
 response_data = response.json()
 
-if 'text' in response_data:
-    text = response_data['text']
+if 'cleaned_text' or 'splitted_text' in response_data:
+    cleaned_text = response_data['cleaned_text']
+    splitted_text = response_data['splitted_text']
 
-    id_pattern = r'(IDNo\.|No.)\s*(\w+)'
-    name_pattern = r'(?<=[*~|])\s*([A-Z ]+)\n'  # ID0009, ID0015
-    name_pattern_1 = r'(IDNo\.|No.)\s*(\w+)(\n\n~|\n~|\n|\n*)\s*([A-Z ]+)\n'  # ID0012, ID0017, ID0018, ID0020
-    name_pattern_2 = r'(IDNo\.|No.)\s*(\w+)\s*([a-z ]+\s*,\n\n((\w+)\s*(\w+)\s*(\w+)))'  # ID0019
-    issue_date_pattern = r'Issue\s*Date\s*(\d{2}\s*\d{2}\s*\d{2})'
-
-    id_match = re.search(id_pattern, text, re.IGNORECASE)
-    name_match = re.search(name_pattern, text, re.IGNORECASE)
-    name_match1 = re.search(name_pattern_1, text, re.IGNORECASE)
-    name_match2 = re.search(name_pattern_2, text, re.IGNORECASE)
-    issue_date_match = re.search(issue_date_pattern, text, re.IGNORECASE)
+    matches = pattern_utils.search_patterns(cleaned_text)
 
     not_found = "\33[31m" + "Not found" + "\33[0m"
+    found = "\33[32m" + "Found" + "\33[0m"
 
-    id_number = id_match.group(2) if id_match else not_found
-    name = name_match.group(1) if name_match else not_found
-    issue_date = issue_date_match.group(1) if issue_date_match else not_found
+    document_type = matches[0].group(0) if matches[0] else not_found
+    id_number = matches[1].group(2) if matches[1] else not_found
+    name = matches[2].group(4) if matches[2] else not_found
+    issue_date = matches[3].group(2) if matches[3] else not_found
+
+    document_type2 = matches[4].group(0) if matches[4] else not_found
+    member_id = matches[5].group(1) if matches[5] else not_found
+    name2 = matches[6].group(1) if matches[6] else not_found
+    effective_date = matches[7].group(1) if matches[7] else not_found
+
+    # specifics patterns
+    specific_member_id = matches[8].group(0) if matches[8] else not_found
+
+    document_type3 = matches[9].group(0) if matches[9] else not_found
+    document_type4 = matches[10].group(0) if matches[10] else not_found
+    document_type5 = matches[11].group(0) if matches[11] else not_found
+    name3 = matches[12].group(0) if matches[12] else not_found
+    document_type6 = matches[13].group(0) if matches[13] else not_found
+    document_type7 = matches[14].group(0) if matches[14] else not_found
+    document_type8 = matches[15].group(0) if matches[15] else not_found
 
     print("---------------------------------")
-    print(f"ID Number: {id_number}")
-    if name_match1:
-        print(f"Name2: {name_match1.group(4)}")
-    elif name_match:
-        print(f"Name1: {name}")
-    elif name_match2:
-        print(f"Name3: {name_match2.group(4)}")
+    if specific_member_id:
+        print(f"Member: {found}")
     else:
-        print(f"Name: {not_found}")
-    print(f"Issue Date: {issue_date}")
+        print(f"Member: {not_found}")
+
+    if document_type == 'BENEFITS IDENTIFICATION CARD':
+        print(f"Document Type: {document_type}")
+        print(f"ID Number: {id_number}")
+        print(f"Name: {name}")
+        print(f"Issue Date (mm/dd/yy): {issue_date}")
+
+    if document_type2 == "MediCal Program":
+        print(f"Document Type: {document_type2}")
+        print(f"Member ID: {member_id}")
+        print(f"Name: {name2}")
+        print(f"Effective Date (m/d/yyyy): {effective_date}")
+
+    if (document_type3 == 'Benefits' or document_type4 == 'Identification'
+            or document_type5 == 'Card'):
+        print(f"Document Type: {document_type3}" + " " + f"{document_type4}"
+              + " " + f"{document_type5}")
+        print(f"ID Number: {id_number}")
+        print(f"Name: {name3}")
+        print(f"Issue Date (mm/dd/yy): {issue_date}")
+
+    if document_type6 == 'Anthem' or document_type7 == 'LA Care' or document_type8 == 'BlueCross':
+        print(f"Document Type: {document_type6} " f"{document_type7} " + f"{document_type8}")
+
     print("---------------------------------")
     print(f"All: ", response_data)
     print("---------------------------------")
